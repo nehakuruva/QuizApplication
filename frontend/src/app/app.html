@@ -1,0 +1,166 @@
+
+<div class="page">
+  <nav class="navbar">
+    <div class="brand">
+      <span class="brand-icon">✦</span>
+      <span>QuizSpark</span>
+    </div>
+    <span class="nav-label">LEARN • PRACTICE • IMPROVE</span>
+  </nav>
+
+  <main class="hero">
+    <div class="hero-heading">
+      <span class="eyebrow">YOUR LEARNING JOURNEY</span>
+      <h1>Challenge your <span>knowledge.</span></h1>
+      <p>Choose your quiz settings and see how much you know.</p>
+    </div>
+
+    <div class="quiz-card" *ngIf="!quizStarted && !result">
+      <div class="setup-heading">
+        <div>
+          <h2>Set up your quiz</h2>
+          <p>Customize your quiz before you begin.</p>
+        </div>
+        <span class="setup-icon">✎</span>
+      </div>
+
+      <div class="setup-form">
+        <div class="form-group">
+          <label for="topic">Choose a topic</label>
+          <select id="topic" [(ngModel)]="selectedTopic">
+            <option *ngFor="let topic of topics" [value]="topic.name">
+              {{ topic.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="difficulty">Difficulty level</label>
+          <select id="difficulty" [(ngModel)]="selectedDifficulty">
+            <option *ngFor="let difficulty of difficulties" [value]="difficulty">
+              {{ difficulty }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="count">Number of questions</label>
+          <div class="count-options">
+            <button
+              type="button"
+              *ngFor="let count of questionCounts"
+              class="count-option"
+              [class.active]="selectedCount === count"
+              (click)="selectedCount = count">
+              {{ count }}
+              <small>Questions</small>
+            </button>
+          </div>
+        </div>
+
+        <div class="quiz-summary">
+          <div><span>Topic</span><strong>{{ selectedTopic }}</strong></div>
+          <div><span>Difficulty</span><strong>{{ selectedDifficulty }}</strong></div>
+          <div><span>Time limit</span><strong>{{ selectedCount * 24 / 60 }} min</strong></div>
+        </div>
+
+        <p class="error-message" *ngIf="error">{{ error }}</p>
+
+        <button
+          class="primary-btn start-btn"
+          type="button"
+          (click)="startQuiz()"
+          [disabled]="loading || topics.length === 0">
+          {{ loading ? 'Loading...' : 'Start Quiz →' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="quiz-card" *ngIf="quizStarted && !result && currentQuestion">
+      <div class="quiz-top">
+        <span class="category-pill">{{ selectedTopic }} · {{ selectedDifficulty }}</span>
+        <div class="timer" [class.warning]="timeLeft <= 30">
+          ◷ {{ formattedTime }}
+        </div>
+      </div>
+
+      <div class="progress-info">
+        <span>Question {{ currentIndex + 1 }} of {{ questions.length }}</span>
+        <span>{{ answeredCount }} answered</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" [style.width.%]="progress"></div>
+      </div>
+
+      <div class="question-area">
+        <h2>{{ currentQuestion.question }}</h2>
+
+        <div class="options">
+          <button
+            type="button"
+            class="option"
+            *ngFor="let option of currentQuestion.options; let i = index"
+            [class.selected]="selectedAnswers[currentIndex] === i"
+            (click)="selectAnswer(i)">
+            <span class="option-letter">{{ ['A', 'B', 'C', 'D'][i] }}</span>
+            <span>{{ option }}</span>
+            <span class="option-check" *ngIf="selectedAnswers[currentIndex] === i">✓</span>
+          </button>
+        </div>
+      </div>
+
+      <p class="error-message" *ngIf="error">{{ error }}</p>
+
+      <div class="quiz-footer">
+        <button
+          class="secondary-btn"
+          type="button"
+          (click)="previousQuestion()"
+          [disabled]="currentIndex === 0">
+          ← Previous
+        </button>
+
+        <button
+          class="primary-btn"
+          type="button"
+          (click)="nextQuestion()"
+          [disabled]="loading">
+          {{ currentIndex === questions.length - 1 ? 'Submit Quiz' : 'Next Question →' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="quiz-card result-card" *ngIf="result">
+      <div class="result-icon">🏆</div>
+      <span class="eyebrow">QUIZ COMPLETED</span>
+      <h2>{{ result.message }}</h2>
+      <p>You've completed the {{ selectedTopic }} quiz.</p>
+
+      <div class="score-circle">
+        <strong>{{ result.percentage }}%</strong>
+        <span>Your score</span>
+      </div>
+
+      <div class="score-details">
+        <div>
+          <strong>{{ result.score }}/{{ result.totalQuestions }}</strong>
+          <span>Correct answers</span>
+        </div>
+        <div>
+          <strong>{{ result.totalQuestions - result.score }}</strong>
+          <span>Incorrect answers</span>
+        </div>
+      </div>
+
+      <button class="primary-btn start-btn" type="button" (click)="restartQuiz()">
+        Try Another Quiz ↻
+      </button>
+    </div>
+
+    <p class="loading-message" *ngIf="loading && topics.length === 0">
+      Loading quiz settings...
+    </p>
+  </main>
+
+  <footer class="footer">Keep learning. Keep growing. ✦</footer>
+</div>
